@@ -1,0 +1,7 @@
+name: "glm4_segment_reply"
+author: "Wyccotccy"
+desc: "调用硅基流动免费大模型进行智能分段"
+version: "2.1.0"
+repo: "https://github.com/Wyccotccy/astrbot-smart-segment-reply"
+display_name: "大模型智能分段插件"
+logo_path: ""
