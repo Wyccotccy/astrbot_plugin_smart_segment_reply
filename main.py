@@ -7,7 +7,7 @@ import aiohttp
 import asyncio
 import random
 
-@register("glm4_segment_reply", "Wyccotccy", "智能分段插件", "2.1.0", "https://github.com/Wyccotccy/astrbot-smart-segment-reply")
+@register("glm4_segment_reply", "Wyccotccy", "智能分段插件", "2.1.0", "https://github.com/Wyccotccy/astrbot_plugin_smart_segment_reply")
 class GLM4SegmentReply(Star):
     def __init__(self, context: Context, config: dict):
         super().__init__(context)
