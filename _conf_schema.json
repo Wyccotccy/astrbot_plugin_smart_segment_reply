@@ -7,10 +7,17 @@
         "default": ""
     },
     "model_selection": {
-        "description": "分段使用的模型（支持预设选择或自定义输入）",
+        "description": "分段使用的模型（支持预设/自定义）",
         "type": "string",
-        "hint": "预设模型（直接复制填写）：\n1. deepseek-ai/DeepSeek-R1-Distill-Qwen-7B\n2. THUDM/GLM-4-9B-0414（默认）\n3. THUDM/GLM-Z1-9B-0414\n4. Qwen/Qwen3-8B\n5. deepseek-ai/DeepSeek-R1-0528-Qwen3-8B\n6. THUDM/GLM-4.1V-9B-Thinking\n\n自定义模型：输入硅基流动支持的模型名称（注意：自定义模型可能产生费用，需确保API Key有足够余额）",
+        "hint": "预设模型（直接复制填写）：\n1. deepseek-ai/DeepSeek-R1-Distill-Qwen-7B\n2. THUDM/GLM-4-9B-0414（默认）\n3. THUDM/GLM-Z1-9B-0414\n4. Qwen/Qwen3-8B\n5. deepseek-ai/DeepSeek-R1-0528-Qwen3-8B\n6. THUDM/GLM-4.1V-9B-Thinking\n\n自定义模型：输入硅基流动支持的模型名称（注意：自定义模型可能产生费用）",
         "obvious_hint": true,
         "default": "THUDM/GLM-4-9B-0414"
+    },
+    "api_url": {
+        "description": "大模型API接口地址",
+        "type": "string",
+        "hint": "默认是硅基流动API地址，若服务变更可在此修改",
+        "obvious_hint": true,
+        "default": "https://api.siliconflow.cn/v1/chat/completions"
     }
 }
