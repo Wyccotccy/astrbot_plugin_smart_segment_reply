@@ -1,6 +1,6 @@
-name: "glm4_segment_reply"
+name: "astrbot_plugin_smart_segment_reply"
 author: "Wyccotccy"
-desc: "调用硅基流动免费大模型进行智能分段"
+desc: "通过调用硅基流动免费的大模型实现智能的分段回复，也支持自定义分段回复大模型"
 version: "2.1.0"
 repo: "https://github.com/Wyccotccy/astrbot_plugin_smart_segment_reply"
 display_name: "大模型智能分段插件"
