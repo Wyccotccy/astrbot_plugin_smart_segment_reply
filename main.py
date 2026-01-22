@@ -3,6 +3,7 @@ from astrbot.api.star import Context, Star, register
 from astrbot.api import logger
 from astrbot.core.message.message_event_result import MessageChain
 from astrbot.api.message_components import Plain
+from astrbot.core.conversation_mgr import Conversation  # 导入对话相关类
 import aiohttp
 import asyncio
 import random
@@ -12,7 +13,7 @@ import re
     "astrbot_plugin_smart_segment_reply",
     "Wyccotccy",
     "通过调用硅基流动免费的大模型实现智能的分段回复，也支持自定义分段回复大模型",
-    "3.0.0",
+    "3.0.1",  # 版本更新
     "https://github.com/Wyccotccy/astrbot_plugin_smart_segment_reply"
 )
 class SmartSegmentReply(Star):
@@ -51,17 +52,60 @@ class SmartSegmentReply(Star):
                 logger.info(f"——分段回复成功，共分1段（无需拆分）——")
                 return
 
-            result.chain.clear()
+            # 关键修复1：保留result.chain，填充完整分段内容（确保聊天记录保存完整回复）
+            merged_segments = "\n\n".join(segments)
+            result.chain = [Plain(text=merged_segments)]  # 替换为分段合并后的完整文本
+
+            # 关键修复2：启动异步任务，延迟发送分段消息并同步到对话历史
+            asyncio.create_task(self.send_segments_with_history(event, segments))
             
-            # 分段延迟发送
-            for segment in segments:
-                await asyncio.sleep(random.uniform(1, 3))
-                await event.send(MessageChain().message(segment))
-            
-            logger.info(f"——分段回复成功，共分{len(segments)}段——")
+            logger.info(f"——分段回复任务已启动，共分{len(segments)}段——")
         except Exception as e:
             logger.error(f"分段失败，发送原消息，失败原因：{str(e)}")
             return
+
+    async def send_segments_with_history(self, event: AstrMessageEvent, segments: list[str]):
+        """延迟发送分段消息，并手动同步到对话历史"""
+        umo = event.unified_msg_origin  # 获取会话唯一标识
+        conv_mgr = self.context.conversation_manager  # 获取对话管理器
+        curr_cid = await conv_mgr.get_curr_conversation_id(umo)  # 获取当前对话ID
+
+        if not curr_cid:
+            logger.warning("无法获取当前对话ID，分段消息仅发送不记录历史")
+            for segment in segments:
+                await asyncio.sleep(random.uniform(1, 3))
+                await event.send(MessageChain().message(segment))
+            return
+
+        # 遍历分段消息，延迟发送并同步历史
+        for segment in segments:
+            await asyncio.sleep(random.uniform(1, 3))
+            
+            # 1. 发送分段消息
+            message_chain = MessageChain().message(segment)
+            await event.send(message_chain)
+            
+            # 2. 手动同步到对话历史
+            conversation = await conv_mgr.get_conversation(umo, curr_cid)
+            if not conversation:
+                logger.warning(f"无法获取对话[{curr_cid}]，跳过该分段历史记录")
+                continue
+            
+            # 构建符合格式的历史条目（与LLM消息格式一致）
+            history_entry = {
+                "role": "assistant",
+                "content": segment,
+                "timestamp": event.message_obj.timestamp  # 复用消息时间戳
+            }
+            
+            # 更新对话历史（保留原有历史，追加新分段）
+            new_history = conversation.history.copy()
+            new_history.append(history_entry)
+            await conv_mgr.update_conversation(
+                unified_msg_origin=umo,
+                conversation_id=curr_cid,
+                history=new_history
+            )
 
     async def call_model_segment(self, text: str) -> list[str]:
         # 懒加载ClientSession（避免Loop未初始化问题）
