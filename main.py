@@ -50,7 +50,7 @@ class SmartSegmentReply(Star):
             
             # 模型分段+手动兜底（确保至少2段）
             segments = await self.call_model_segment(raw_text)
-            if not segments or 错误定位：对话历史格式异常
+            if not segments or 错误定位:对话历史格式异常
 核心原因：`conversation.history` 实际是 **字符串类型**（而非预期的列表），调用 `copy()` 方法报错。可能是对话历史存储格式不一致（如JSON字符串未解析）。
 
 ### 修复代码（兼容历史格式，确保发送成功）
